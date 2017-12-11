@@ -62,12 +62,12 @@
     <div style="background-color: #FFFFFF; float: left; width: 49%; height: 800px">
         <div style="height:53%;width:98%;outline-style: solid;outline-width: 1px;text-align:center;margin-left:5px;margin-top:5px;">
             <div style="position:absolute;z-index:4;width:45%;height:37%">
-                <canvas id="catAnimation"></canvas>
+                <canvas id="AnimalAnimation"></canvas>
             </div>
         </div>
         <hr>
         <div style="overflow-y:auto; height:40%;">
-            <table >
+            <table>
                 <tr>
                     <td>
                         <img src="images/cat1_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
@@ -78,6 +78,21 @@
                     <td>
                         <img src="images/cat3_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
                     </td>
+           <table>
+                <tr>
+   
+                    <td>
+                        <img src="images/kody1_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+                    <td>
+                        <img src="images/kody2_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+                    <td>
+                        <img src="images/kody3_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+               </tr>
+            </table>
+
                 </tr>
             </table>
         </div>
@@ -97,8 +112,15 @@
         <block type="whenrunclicked"></block>
         <block type="clearscreen"></block>
     </category>
-    <category name="cats" colour="175">
-        <block type="catpose"></block>
+    <category name="Animals" colour="175">
+        <block type="say" colour="335"></block>
+        <category name="Cats" colour="175">
+            <block type="catpose"></block>
+        </category>
+        <category name="Dogs" colour="175">
+            <block type="dogpose"></block>
+        </category>
+    </category>
     </category>
 
     <sep></sep>
@@ -139,14 +161,14 @@
     /********************
      * Setup the Canvas *
      ********************/
-    var canvas = document.getElementById("catAnimation");
+    var canvas = document.getElementById("AnimalAnimation");
     canvas.width = 480;
     canvas.height = 480;
 
-    var ctx = document.getElementById('catAnimation').getContext('2d');
+    var ctx = document.getElementById('AnimalAnimation').getContext('2d');
 
     var animation = true;
-
+    
     /*********************
      * Defining a Sprite *
      *********************/
@@ -172,16 +194,18 @@
                 spriteObj.x,
                 spriteObj.y,
                 spriteObj.width,
-                spriteObj.height);
+                spriteObj.height,
+                );
         };
 
         return spriteObj;
     }
 
     /**********************
-     * Defining the cat *
+     * Defining the animals *
      **********************/
     var catImage = new Image();
+    var cat_pose = 1;
     catImage.src = "images/cat1.png";
 
     var cat1 = sprite({
@@ -191,17 +215,39 @@
         image: catImage,
         x: 0,
         y: 0
+
+    });
+    var dogImage = new Image();
+    var dog_pose = 1;
+    dogImage.src = "images/kody1.png";
+
+    var kody1 = sprite({
+        context: canvas.getContext("2d"),
+        width: 500,
+        height: 500,
+        image: dogImage,
+        x: 250,
+        y: 250
+
     });
 
     /******************
      * Show the cat *
      ******************/
     cat1.render();
+    kody1.render();
 
+    var cat_array = [];
+    var dog_array = [];
+    var dog_num = 0;
+    var cat_num = 0;
+    var text_num = 0;
     var indexToArrays = 0;
-    var numOfInstructions = 0;
+    var cat_numOfInstructions = 0;
+    var dog_numOfInstructions = 0;
+    var text_numOfInstructions = 0;
     var arrayOfPoses = [];
-
+    var text_array=[];
     /**************************************
      * RUN and STOP buttons on the canvas *
      **************************************/
@@ -227,19 +273,41 @@
         window.requestAnimationFrame(animate);
     }
 
-    function updatePose(poseNum){
-        arrayOfPoses.push(poseNum);
-        numOfInstructions++;
+    function updatePose(poseNum, animal){
+        if (animal == "cat") {
+           cat_pose = poseNum;
+           cat_array.push(cat_pose);
+           cat_numOfInstructions++;
+        }
+        if (animal == "dog") {
+           console.log("pose number is " + poseNum);
+           dog_pose = poseNum;
+           dog_array.push(dog_pose);
+           dog_numOfInstructions++;
+        }
     }
 
     function animate() {
         setTimeout(function() {
-            setcatImage(arrayOfPoses[indexToArrays]);
+            
+            setcatImage(cat_array[cat_num]);
+            setdogImage(dog_array[dog_num]);
+            saySomething(text_array[text_num]); 
+            cat_num++;
+            dog_num++;
+            text_num++;
+            if (cat_num >= cat_numOfInstructions) {
+              cat_num = 0;
 
-            indexToArrays++;
+            }
 
-            if (indexToArrays == numOfInstructions)
-                indexToArrays = 0;
+            if (dog_num >= dog_numOfInstructions) {
+              dog_num = 0;
+            }
+            if (text_num >= text_numOfInstructions) {
+              text_num = 0;
+            }
+
 
             if (animation) {
                 window.requestAnimationFrame(animate);
@@ -249,13 +317,32 @@
 
     function stopCode() {
         animation = false;
+        cat_array = [];
+        dog_array = [];
+        text_array = [];
+        cat_num = 0;
+        dog_num = 0;
+        text_num = 0;
+        cat_numOfInstructions = 0; 
+        dog_numOfInstructions = 0; 
+        text_numOfInstructions = 0;
+
     }
 
     function resetCanvas(){
         clearCanvas();
         setcatImage(1);
     }
-
+    function updateSay(str){
+        console.log("Updating say");
+        text_array.push(str);  
+        text_numOfInstructions++;
+    }
+    function saySomething(str){
+        console.log("str is " + str);
+        ctx.font = "30px Arial";
+        ctx.fillText(str,140,400);
+    }
     /*************************************
      * Keep the code variable up to date *
      *************************************/
@@ -272,16 +359,32 @@
     /*****************************
      * Changing the cat's Pose *
      *****************************/
-    function setcatImage(catIndex){
-        if(!catIndex)
-          catIndex = 1;
-        clearCanvas();
-        catImage.src = "images/cat"+catIndex+".png";
+    //function setcatImage(catIndex){
+    function setcatImage(pose){
+        console.log("cat's pose is " + pose);
+        console.log("cat array here is " + cat_array);
+        if(!pose)
+          pose = 1;
+        ctx.clearRect(0, 0, 500, 500);
+        catImage.src = "images/cat"+pose+".png";
         ctx.drawImage(cat1.image, cat1.x, cat1.y);
         ctx.save();
         ctx.restore();
     }
-
+    /*****************************
+     * Changing the dog's Pose *
+     *****************************/
+    //function setdogImage(dogIndex){
+    function setdogImage(pose){
+        if(!pose)
+          pose = 1;
+        ctx.clearRect(250, 250, 500, 500);
+        console.log("kody is here, pose is " + pose);
+        dogImage.src = "images/kody"+pose+".png";
+        ctx.drawImage(kody1.image, kody1.x, kody1.y);
+        ctx.save();
+        ctx.restore();
+    }
     /***********************
      * Clearing the Canvas *
      ***********************/
